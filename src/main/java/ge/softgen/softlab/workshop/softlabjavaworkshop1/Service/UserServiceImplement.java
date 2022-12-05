@@ -1,14 +1,15 @@
 package ge.softgen.softlab.workshop.softlabjavaworkshop1.Service;
 
+import ge.softgen.softlab.workshop.softlabjavaworkshop1.Entity.Post;
 import ge.softgen.softlab.workshop.softlabjavaworkshop1.Entity.User;
-import ge.softgen.softlab.workshop.softlabjavaworkshop1.Exception.PostNotFoundException;
 import ge.softgen.softlab.workshop.softlabjavaworkshop1.Exception.UserNotFoundException;
 import ge.softgen.softlab.workshop.softlabjavaworkshop1.Repository.PostRepository;
 import ge.softgen.softlab.workshop.softlabjavaworkshop1.Repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserServiceImplement implements UserService {
@@ -33,7 +34,7 @@ public class UserServiceImplement implements UserService {
     @Override
     public void addUser(User user) {
         user.setActive(true);
-        user.setCreateDate(LocalDate.now());
+        user.setCreateDate(LocalDateTime.now());
         userRepository.save(user);
     }
 
@@ -43,7 +44,7 @@ public class UserServiceImplement implements UserService {
         foundedUser.setUsername(user.getUsername());
         foundedUser.setPassword(user.getPassword());
         foundedUser.setEmail(user.getEmail());
-        foundedUser.setCreateDate(LocalDate.now());
+        foundedUser.setCreateDate(LocalDateTime.now());
         userRepository.save(foundedUser);
     }
 
@@ -56,11 +57,10 @@ public class UserServiceImplement implements UserService {
     }
 
     @Override
-    public List<User> getUserPosts(Integer id) {
-        if (postRepository.findAllById(id).isEmpty() || postRepository.findAllById(id) == null) {
-            throw new PostNotFoundException("Posts not found, id was invalid!");
-        }
-        return postRepository.findAllById(id);
+    public List<Post> getUserPosts(Integer id) {
+        var optional = postRepository.findAll();
+        optional = optional.stream().filter(post -> Objects.equals(post.getUserId(), id)).toList();
+        return optional;
     }
 
     public User checkAndGetUser(Integer id) {

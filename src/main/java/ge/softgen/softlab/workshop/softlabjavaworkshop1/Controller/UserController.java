@@ -1,5 +1,6 @@
 package ge.softgen.softlab.workshop.softlabjavaworkshop1.Controller;
 
+import ge.softgen.softlab.workshop.softlabjavaworkshop1.Entity.Post;
 import ge.softgen.softlab.workshop.softlabjavaworkshop1.Entity.User;
 import ge.softgen.softlab.workshop.softlabjavaworkshop1.Service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,11 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUserByID(@PathVariable Integer id){
         return userService.getUserById(id);
+    }
+
+    @GetMapping("/{id}/posts")
+    public List<Post> getPostsOfUser(@PathVariable Integer id){
+        return userService.getUserPosts(id);
     }
 
     @PostMapping()

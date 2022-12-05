@@ -19,9 +19,7 @@ public class PostServiceImplement implements PostService {
 
     @Override
     public List<Post> getAllPosts() {
-        var posts = postRepository.findAll();
-        posts = posts.stream().filter(post -> post.getActive()).toList();
-        return posts;
+        return postRepository.findAll().stream().filter(Post::getActive).toList();
     }
 
     @Override
@@ -56,6 +54,9 @@ public class PostServiceImplement implements PostService {
     }
 
     public Post checkAndGetPost(Integer id) {
+        if (id < 1 || id > postRepository.findAll().size()) {
+            throw new PostNotFoundException("Post id must be positive, or your id is more than database's size!");
+        }
         return postRepository
                 .findById(id)
                 .orElseThrow(() -> new PostNotFoundException("Post not found!"));

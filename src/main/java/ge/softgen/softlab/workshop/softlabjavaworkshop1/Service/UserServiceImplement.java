@@ -22,9 +22,7 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public List<User> getAllUsers() {
-        var users = userRepository.findAll();
-        users = users.stream().filter(user -> user.getActive()).toList();
-        return users;
+        return userRepository.findAll().stream().filter(User::getActive).toList();
     }
 
     @Override
@@ -59,13 +57,16 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public List<User> getUserPosts(Integer id) {
-        if(postRepository.findAllById(id).isEmpty() || postRepository.findAllById(id)==null){
+        if (postRepository.findAllById(id).isEmpty() || postRepository.findAllById(id) == null) {
             throw new PostNotFoundException("Posts not found, id was invalid!");
         }
         return postRepository.findAllById(id);
     }
 
     public User checkAndGetUser(Integer id) {
+        if (id < 1 || id > userRepository.findAll().size()) {
+            throw new UserNotFoundException("User id must be positive, or your id is more than database's size!");
+        }
         return userRepository
                 .findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found!"));

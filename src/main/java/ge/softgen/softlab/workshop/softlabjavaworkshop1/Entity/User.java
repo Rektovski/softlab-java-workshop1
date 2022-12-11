@@ -3,7 +3,7 @@ package ge.softgen.softlab.workshop.softlabjavaworkshop1.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Data
 @Entity
@@ -17,7 +17,6 @@ public class User {
     String password;
     String email;
     @Column(name = "create_Date")
-    LocalDateTime createDate;
+    Timestamp createDate;
     Boolean active;
-
 }

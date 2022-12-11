@@ -3,7 +3,7 @@ package ge.softgen.softlab.workshop.softlabjavaworkshop1.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
 
 @Data
 @Entity
@@ -15,7 +15,7 @@ public class Post {
     Integer id;
     String title;
     String body;
-    LocalDate createDate;
+    Timestamp createDate;
     @Column(name = "user_id")
     Integer userId;
     Boolean active;

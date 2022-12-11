@@ -5,7 +5,8 @@ import ge.softgen.softlab.workshop.softlabjavaworkshop1.Exception.PostNotFoundEx
 import ge.softgen.softlab.workshop.softlabjavaworkshop1.Repository.PostRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -19,7 +20,7 @@ public class PostServiceImplement implements PostService {
 
     @Override
     public List<Post> getAllPosts() {
-        return postRepository.findAll().stream().filter(Post::getActive).toList();
+        return postRepository.getAllActivePosts();
     }
 
     @Override
@@ -30,18 +31,16 @@ public class PostServiceImplement implements PostService {
     @Override
     public void addPost(Post post) {
         post.setActive(true);
-        post.setCreateDate(LocalDate.now());
+        post.setCreateDate(Timestamp.from(Instant.now()));
         postRepository.save(post);
     }
 
     @Override
     public void updatePostById(Post post, Integer id) {
         var foundedPost = checkAndGetPost(id);
-
         foundedPost.setTitle(post.getTitle());
         foundedPost.setBody(post.getBody());
-        foundedPost.setCreateDate(LocalDate.now());
-
+        foundedPost.setCreateDate(Timestamp.from(Instant.now()));
         postRepository.save(foundedPost);
     }
 
@@ -50,12 +49,14 @@ public class PostServiceImplement implements PostService {
         var foundedPost = checkAndGetPost(id);
         foundedPost.setActive(false);
         postRepository.save(foundedPost);
-//        postRepository.deleteById(id);
     }
 
     public Post checkAndGetPost(Integer id) {
-        if (id < 1 || id > postRepository.findAll().size()) {
-            throw new PostNotFoundException("Post id must be positive, or your id is more than database's size!");
+        if(postRepository.findById(id).isPresent()){
+            var optional = postRepository.findById(id).get();
+            if(!optional.getActive()) {
+                throw new PostNotFoundException("Post is deleted");
+            }
         }
         return postRepository
                 .findById(id)

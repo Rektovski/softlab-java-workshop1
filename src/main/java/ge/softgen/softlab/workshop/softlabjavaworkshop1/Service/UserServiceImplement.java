@@ -7,7 +7,6 @@ import ge.softgen.softlab.workshop.softlabjavaworkshop1.Repository.PostRepositor
 import ge.softgen.softlab.workshop.softlabjavaworkshop1.Repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,7 +22,7 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public List<User> getAllUsers() {
-        return userRepository.findAll().stream().filter(User::getActive).toList();
+        return userRepository.findAllActive();
     }
 
     @Override
@@ -34,7 +33,6 @@ public class UserServiceImplement implements UserService {
     @Override
     public void addUser(User user) {
         user.setActive(true);
-        user.setCreateDate(LocalDateTime.now());
         userRepository.save(user);
     }
 
@@ -44,7 +42,7 @@ public class UserServiceImplement implements UserService {
         foundedUser.setUsername(user.getUsername());
         foundedUser.setPassword(user.getPassword());
         foundedUser.setEmail(user.getEmail());
-        foundedUser.setCreateDate(LocalDateTime.now());
+        foundedUser.setCreateDate(user.getCreateDate()); // Timestamp
         userRepository.save(foundedUser);
     }
 
@@ -53,19 +51,21 @@ public class UserServiceImplement implements UserService {
         var foundedUser = checkAndGetUser(id);
         foundedUser.setActive(false);
         userRepository.save(foundedUser);
-//        userRepository.deleteById(id);
     }
 
     @Override
     public List<Post> getUserPosts(Integer id) {
-        var optional = postRepository.findAll();
-        optional = optional.stream().filter(post -> Objects.equals(post.getUserId(), id)).toList();
-        return optional;
+        return postRepository.findAll().stream()
+                .filter(post -> Objects.equals(post.getUserId(), id))
+                .toList();
     }
 
     public User checkAndGetUser(Integer id) {
-        if (id < 1 || id > userRepository.findAll().size()) {
-            throw new UserNotFoundException("User id must be positive, or your id is more than database's size!");
+        if(userRepository.findById(id).isPresent()){
+            var optional = userRepository.findById(id).get();
+            if(!optional.getActive()) {
+                throw new UserNotFoundException("User is deleted!");
+            }
         }
         return userRepository
                 .findById(id)
